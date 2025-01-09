@@ -1,0 +1,8 @@
+services:
+  mongo:
+    image: mongo:latest
+    container_name: lottery-app
+    ports:
+      - '27017:27017'
+    volumes:
+      - ./mongodb:/data/db
