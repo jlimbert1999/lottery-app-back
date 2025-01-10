@@ -11,6 +11,7 @@ import {
   ParticipantSchema,
 } from './participant.schema';
 import { Prize, PrizeSchema } from './prize.schema';
+import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { Prize, PrizeSchema } from './prize.schema';
         ],
       },
     ]),
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

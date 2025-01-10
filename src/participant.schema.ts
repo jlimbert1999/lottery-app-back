@@ -1,7 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
-
-import { Prize, PrizeDocument } from './prize.schema';
+import { HydratedDocument } from 'mongoose';
 
 export enum codeTypeEnum {
   IMBUEBLE = 'NUMERO DE INMBUEBLE',
@@ -30,6 +28,9 @@ export class ParticipantIndividual {
 
   @Prop()
   extension: string;
+
+  @Prop({ default: true })
+  isEnabled: boolean;
 }
 
 export const ParticipantIndividualSchema = SchemaFactory.createForClass(ParticipantIndividual);
@@ -60,9 +61,6 @@ export class Participant {
 
   @Prop({ enum: [ParticipantIndividual.name, ParticipantEntity.name] })
   group: string;
-
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Prize.name })
-  prize: PrizeDocument;
 }
 
 export const ParticipantSchema = SchemaFactory.createForClass(Participant);
