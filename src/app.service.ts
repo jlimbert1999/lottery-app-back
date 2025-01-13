@@ -12,7 +12,7 @@ import {
 import { ClientSession, Connection, Model } from 'mongoose';
 import { uploadDataTypeEnum, UploadParticipantsDto } from './dtos/upload-participants.dto';
 import { PaginationParamsDto } from './pagination.dto';
-import { SetWinnerDto, UploadPrizesDto } from './dtos';
+import { UploadPrizesDto } from './dtos';
 import { Prize, PrizeDocument } from './prize.schema';
 import { FilesService } from './files/files.service';
 
@@ -28,24 +28,21 @@ export class AppService {
   ) {}
 
   async getWinner(prizeId: string) {
+    console.log(prizeId);
     const session = await this.connection.startSession();
     try {
       session.startTransaction();
       const prize = await this._checkValidPrize(prizeId, session);
-      const [winner] = await this.participantModel.aggregate(
-        [{ $match: { isEnabled: true } }, { $sample: { size: 1 } }],
-        { session },
-      );
+      const [winner] = await this.participantModel
+        .aggregate([{ $match: { isEnabled: true } }, { $sample: { size: 1 } }])
+        .session(session);
       if (!winner) throw new BadRequestException('No hay participantes habilitados');
-      const participant = await this.participantModel.findByIdAndUpdate(
-        { _id: winner._id },
-        { isEnabled: false },
-        { session },
-      );
+      const participant = await this.participantModel.findByIdAndUpdate(winner._id, { isEnabled: false }, { session });
       await this.prizeModel.findByIdAndUpdate(prize._id, { participant: participant._id });
       await session.commitTransaction();
       return winner;
     } catch (error) {
+      console.log(error);
       await session.abortTransaction();
       if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException();
@@ -134,7 +131,7 @@ export class AppService {
   }
 
   private async _checkValidPrize(prizeId: string, session: ClientSession) {
-    const prize = await this.prizeModel.findById(prizeId, session);
+    const prize = await this.prizeModel.findById(prizeId, null, { session });
     if (!prize) throw new BadRequestException(`Premio ${prizeId} no existe`);
     if (prize.participant) {
       throw new BadRequestException(`El premio ${prize} ya ha sido asignado`);

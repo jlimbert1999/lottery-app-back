@@ -18,7 +18,7 @@ export class Prize {
   @Prop()
   image?: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Participant.name, unique: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Participant.name, unique: true, sparse: true })
   participant: ParticipantDocument;
 }
 export const PrizeSchema = SchemaFactory.createForClass(Prize);
