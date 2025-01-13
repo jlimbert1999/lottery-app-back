@@ -28,7 +28,6 @@ export class AppService {
   ) {}
 
   async getWinner(prizeId: string) {
-    console.log(prizeId);
     const session = await this.connection.startSession();
     try {
       session.startTransaction();
@@ -38,11 +37,12 @@ export class AppService {
         .session(session);
       if (!winner) throw new BadRequestException('No hay participantes habilitados');
       const participant = await this.participantModel.findByIdAndUpdate(winner._id, { isEnabled: false }, { session });
-      await this.prizeModel.findByIdAndUpdate(prize._id, { participant: participant._id });
+      const result = await this.prizeModel
+        .findByIdAndUpdate(prize._id, { participant }, { session, new: true })
+        .populate('participant');
       await session.commitTransaction();
-      return winner;
+      return this._plainPrize(result);
     } catch (error) {
-      console.log(error);
       await session.abortTransaction();
       if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException();
@@ -51,9 +51,9 @@ export class AppService {
     }
   }
 
-  async getActivePrizes() {
-    const data = await this.prizeModel.find({ participant: null });
-    return this._plainPrizes(data);
+  async getPrizes() {
+    const data = await this.prizeModel.find({}).populate('participant');
+    return data.map((item) => this._plainPrize(item));
   }
 
   async findParticipants({ limit, offset }: PaginationParamsDto) {
@@ -62,11 +62,6 @@ export class AppService {
       this.participantModel.countDocuments(),
     ]);
     return { participants, length };
-  }
-
-  async findPrizes() {
-    const data = await this.prizeModel.find({});
-    return this._plainPrizes(data);
   }
 
   async uploadParticipants({ data }: UploadParticipantsDto) {
@@ -123,11 +118,9 @@ export class AppService {
     }
   }
 
-  private _plainPrizes(prizes: PrizeDocument[]) {
-    return prizes.map((item) => {
-      const { image, ...props } = item.toObject();
-      return { ...props, image: this.fileService.buildFileUrl(image) };
-    });
+  private _plainPrize(prize: PrizeDocument) {
+    const { image, ...props } = prize.toObject();
+    return { ...props, image: this.fileService.buildFileUrl(image) };
   }
 
   private async _checkValidPrize(prizeId: string, session: ClientSession) {

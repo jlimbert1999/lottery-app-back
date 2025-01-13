@@ -12,9 +12,9 @@ export class AppController {
     return this.appService.getWinner(prizeId);
   }
 
-  @Get('prizes/active')
-  getActivePrizes() {
-    return this.appService.getActivePrizes();
+  @Get('prizes')
+  getPrizes() {
+    return this.appService.getPrizes();
   }
 
   @Get('participants')
@@ -30,10 +30,5 @@ export class AppController {
   @Post('prizes')
   uploadPrizes(@Body() body: UploadPrizesDto) {
     return this.appService.uploadPrizes(body);
-  }
-
-  @Get('prizes')
-  getPrizes() {
-    return this.appService.findPrizes();
   }
 }
