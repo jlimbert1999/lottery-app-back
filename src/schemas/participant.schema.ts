@@ -28,9 +28,6 @@ export class ParticipantIndividual {
 
   @Prop()
   extension: string;
-
-  @Prop({ default: true })
-  isEnabled: boolean;
 }
 
 export const ParticipantIndividualSchema = SchemaFactory.createForClass(ParticipantIndividual);
@@ -61,6 +58,9 @@ export class Participant {
 
   @Prop({ enum: [ParticipantIndividual.name, ParticipantEntity.name] })
   group: string;
+
+  @Prop({ default: true })
+  isEnabled: boolean;
 }
 
 export const ParticipantSchema = SchemaFactory.createForClass(Participant);

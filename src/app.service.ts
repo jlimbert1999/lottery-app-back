@@ -1,5 +1,6 @@
 import { BadRequestException, HttpException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { ClientSession, Connection, Model } from 'mongoose';
 import {
   codeTypeEnum,
   Participant,
@@ -8,13 +9,12 @@ import {
   ParticipantEntityDocument,
   ParticipantIndividual,
   ParticipantIndividualDocument,
-} from './participant.schema';
-import { ClientSession, Connection, Model } from 'mongoose';
+} from './schemas/participant.schema';
 import { uploadDataTypeEnum, UploadParticipantsDto } from './dtos/upload-participants.dto';
+import { Prize, PrizeDocument } from './schemas/prize.schema';
 import { PaginationParamsDto } from './pagination.dto';
-import { UploadPrizesDto } from './dtos';
-import { Prize, PrizeDocument } from './prize.schema';
 import { FilesService } from './files/files.service';
+import { UploadPrizesDto } from './dtos';
 
 @Injectable()
 export class AppService {
@@ -56,12 +56,16 @@ export class AppService {
     return data.map((item) => this._plainPrize(item));
   }
 
-  async findParticipants({ limit, offset }: PaginationParamsDto) {
+  async getParticipants({ limit, offset }: PaginationParamsDto) {
     const [participants, length] = await Promise.all([
       this.participantModel.find({}).skip(offset).limit(limit),
       this.participantModel.countDocuments(),
     ]);
     return { participants, length };
+  }
+
+  async getWinnersPrizes() {
+    return await this.prizeModel.find({ participant: { $ne: null } }).populate('participant');
   }
 
   async uploadParticipants({ data }: UploadParticipantsDto) {

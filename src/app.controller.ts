@@ -19,7 +19,12 @@ export class AppController {
 
   @Get('participants')
   getParticipants(@Query() queryParams: PaginationParamsDto) {
-    return this.appService.findParticipants(queryParams);
+    return this.appService.getParticipants(queryParams);
+  }
+
+  @Get('winners')
+  getWinnerPrizes() {
+    return this.appService.getWinnersPrizes();
   }
 
   @Post('participants')

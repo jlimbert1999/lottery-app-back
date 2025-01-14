@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, InternalServerErrorException } from '@
 import { existsSync } from 'fs';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
+import { envs } from 'src/config';
 import { v4 as uuid } from 'uuid';
 
 @Injectable()
@@ -33,8 +34,6 @@ export class FilesService {
   }
 
   public buildFileUrl(filename: string): string {
-    // TODO user env variables
-    const host = 'http://localhost:3000';
-    return `${host}/files/${filename}`;
+    return `${envs.host}/files/${filename}`;
   }
 }
