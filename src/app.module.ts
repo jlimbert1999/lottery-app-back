@@ -15,6 +15,8 @@ import {
 } from './schemas';
 import { FilesModule } from './files/files.module';
 import { envs } from './config';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -37,6 +39,9 @@ import { envs } from './config';
       },
     ]),
     FilesModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
