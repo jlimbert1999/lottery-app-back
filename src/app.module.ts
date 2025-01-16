@@ -14,10 +14,11 @@ import {
   ParticipantSchema,
 } from './schemas';
 import { FilesModule } from './files/files.module';
+import { envs } from './config';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost/lottery-app-test'),
+    MongooseModule.forRoot(envs.database_url),
     MongooseModule.forFeature([
       { name: Prize.name, schema: PrizeSchema },
       {

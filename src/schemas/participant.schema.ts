@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
 export enum codeTypeEnum {
-  IMBUEBLE = 'NUMERO DE INMBUEBLE',
+  IMBUEBLE = 'NUMERO DE INMUEBLE',
   VEHICULO = 'NUMERO DE PLACA',
   LICENCIA = 'NUMERO DE LICENCIA',
 }

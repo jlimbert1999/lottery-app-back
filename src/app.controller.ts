@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { AppService } from './app.service';
-import { PaginationParamsDto } from './pagination.dto';
+import { PaginationParamsDto } from './dtos/pagination.dto';
 import { UploadPrizesDto, UploadParticipantsDto } from './dtos';
 
 @Controller()
@@ -35,5 +35,10 @@ export class AppController {
   @Post('prizes')
   uploadPrizes(@Body() body: UploadPrizesDto) {
     return this.appService.uploadPrizes(body);
+  }
+
+  @Get('details')
+  getAppDetails() {
+    return this.appService.getAppDetails();
   }
 }

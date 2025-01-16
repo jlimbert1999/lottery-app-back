@@ -2,6 +2,8 @@ import { BadRequestException, HttpException, Injectable, InternalServerErrorExce
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Connection, Model } from 'mongoose';
 import {
+  Prize,
+  PrizeDocument,
   codeTypeEnum,
   Participant,
   ParticipantDocument,
@@ -9,12 +11,9 @@ import {
   ParticipantEntityDocument,
   ParticipantIndividual,
   ParticipantIndividualDocument,
-} from './schemas/participant.schema';
-import { uploadDataTypeEnum, UploadParticipantsDto } from './dtos/upload-participants.dto';
-import { Prize, PrizeDocument } from './schemas/prize.schema';
-import { PaginationParamsDto } from './pagination.dto';
+} from './schemas';
 import { FilesService } from './files/files.service';
-import { UploadPrizesDto } from './dtos';
+import { PaginationParamsDto, uploadDataTypeEnum, UploadParticipantsDto, UploadPrizesDto } from './dtos';
 
 @Injectable()
 export class AppService {
@@ -31,6 +30,7 @@ export class AppService {
     const session = await this.connection.startSession();
     try {
       session.startTransaction();
+
       const prize = await this._checkValidPrize(prizeId, session);
       const [winner] = await this.participantModel
         .aggregate([{ $match: { isEnabled: true } }, { $sample: { size: 1 } }])
@@ -40,6 +40,7 @@ export class AppService {
       const result = await this.prizeModel
         .findByIdAndUpdate(prize._id, { participant }, { session, new: true })
         .populate('participant');
+        
       await session.commitTransaction();
       return this._plainPrize(result);
     } catch (error) {
@@ -66,6 +67,14 @@ export class AppService {
 
   async getWinnersPrizes() {
     return await this.prizeModel.find({ participant: { $ne: null } }).populate('participant');
+  }
+
+  async getAppDetails() {
+    const [totalParticipants, totalPrizes] = await Promise.all([
+      this.participantModel.countDocuments(),
+      this.prizeModel.countDocuments(),
+    ]);
+    return { totalParticipants, totalPrizes };
   }
 
   async uploadParticipants({ data }: UploadParticipantsDto) {
