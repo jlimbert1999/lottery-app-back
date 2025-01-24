@@ -40,7 +40,7 @@ export class AppService {
       const result = await this.prizeModel
         .findByIdAndUpdate(prize._id, { participant }, { session, new: true })
         .populate('participant');
-        
+
       await session.commitTransaction();
       return this._plainPrize(result);
     } catch (error) {
@@ -70,11 +70,14 @@ export class AppService {
   }
 
   async getAppDetails() {
-    const [totalParticipants, totalPrizes] = await Promise.all([
+    const [totalInmueble, totalVehiculo, totalLicencia, totalParticipants, totalPrizes] = await Promise.all([
+      this.participantModel.countDocuments({ codeType: codeTypeEnum.IMBUEBLE }),
+      this.participantModel.countDocuments({ codeType: codeTypeEnum.VEHICULO }),
+      this.participantModel.countDocuments({ codeType: codeTypeEnum.LICENCIA }),
       this.participantModel.countDocuments(),
       this.prizeModel.countDocuments(),
     ]);
-    return { totalParticipants, totalPrizes };
+    return { totalParticipants, totalPrizes, totalInmueble, totalVehiculo, totalLicencia };
   }
 
   async uploadParticipants({ data }: UploadParticipantsDto) {
